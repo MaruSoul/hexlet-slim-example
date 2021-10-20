@@ -1,5 +1,6 @@
 <?php
 
+
 // Подключение автозагрузки через composer
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -14,4 +15,14 @@ $app->get('/', function ($request, $response) {
     // Благодаря пакету slim/http этот же код можно записать короче
     // return $response->write('Welcome to Slim!');
 });
+
+$app->get('/courses/{id}', function ($request, $response, array $args) {
+    $id = $args['id'];
+    return $response->write("Course id: {$id}");
+});
+
 $app->run();
+
+
+
+
