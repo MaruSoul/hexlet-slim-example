@@ -6,15 +6,16 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 use DI\Container;
+use Fakeldev\HexletSlimExample\Validator;
+use Fakeldev\HexletSlimExample\CourseRepository;
 
-$users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
+
+$repo = new CourseRepository();
 
 $container = new Container();
 $container->set('renderer', function () {
-    // Параметром передается базовая директория, в которой будут храниться шаблоны
     return new PhpRenderer(__DIR__ . '/../templates');
 });
-
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
@@ -23,25 +24,32 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml');
 });
 
-$app->get('/users', function ($request, $response) use ($users) {
-    $term = $request->getQueryParam('term');
-    $filteredUsers = [];
-
-    foreach ($users as $user) {
-        if (str_contains($user, $term)) {
-            $filteredUsers[] = $user;
-        }
-    }
-    $params = ['users' => $filteredUsers, 'term' => $term];
+$app->get('/users', function ($request, $response) use ($repo) {
+    $params = [
+        'user' => $repo->all()
+    ];
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 });
 
-$app->get('/users/{id}', function ($request, $response, $args) {
-    $params = ['id' => $args['id'], 'nickname' => 'user-' . $args['id']];
-    // Указанный путь считается относительно базовой директории для шаблонов, заданной на этапе конфигурации
-    // $this доступен внутри анонимной функции благодаря https://php.net/manual/ru/closure.bindto.php
-    // $this в Slim это контейнер зависимостей
-    return $this->get('renderer')->render($response, 'users/show.phtml', $params);
+// BEGIN (write your solution here)
+$app->get('/users/new', function ($request, $response) {
+    $params = [
+        'user' => ['nickname' => '', 'email' => '', 'id' => '']
+    ];
+    return $this->get('renderer')->render($response, 'users/new.phtml', $params);
 });
+
+$app->post('/users', function ($request, $response) use ($repo) {
+    $validator = new Validator();
+    $params = $request->getParsedBody();
+    $user = $request->getParsedBodyParam('user');
+    if ($validator->validate($user)) {
+        $repo->save($user);
+        return $response->withRedirect('/users');
+    } else {
+        return $this->get('renderer')->render($response, "users/new.phtml", $params)->withStatus(422);
+    }
+});
+// END
 
 $app->run();
