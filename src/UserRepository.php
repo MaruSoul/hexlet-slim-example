@@ -4,7 +4,7 @@ namespace Fakeldev\HexletSlimExample;
 
 use Exception;
 
-class CourseRepository
+class UserRepository
 {
     public function __construct()
     {
@@ -27,9 +27,11 @@ class CourseRepository
 
     public function save(array $item)
     {
-        if (empty($item['nickname']) || $item['email'] === '' ||  $item['id'] === '') {
+        if (empty($item['nickname']) || $item['email'] === '') {
             $json = json_encode($item);
             throw new Exception("Wrong data: {$json}");
         }
+        $item['id'] = uniqid();
+        $_SESSION[$item['id']] = $item;
     }
 }

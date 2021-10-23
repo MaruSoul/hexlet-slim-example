@@ -7,10 +7,10 @@ use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 use DI\Container;
 use Fakeldev\HexletSlimExample\Validator;
-use Fakeldev\HexletSlimExample\CourseRepository;
+use Fakeldev\HexletSlimExample\UserRepository;
 
 
-$repo = new CourseRepository();
+$repo = new UserRepository();
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -26,12 +26,11 @@ $app->get('/', function ($request, $response) {
 
 $app->get('/users', function ($request, $response) use ($repo) {
     $params = [
-        'user' => $repo->all()
+        'users' => $repo->all()
     ];
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 });
 
-// BEGIN (write your solution here)
 $app->get('/users/new', function ($request, $response) {
     $params = [
         'user' => ['nickname' => '', 'email' => '', 'id' => '']
@@ -50,6 +49,5 @@ $app->post('/users', function ($request, $response) use ($repo) {
         return $this->get('renderer')->render($response, "users/new.phtml", $params)->withStatus(422);
     }
 });
-// END
 
 $app->run();

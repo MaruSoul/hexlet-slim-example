@@ -16,10 +16,6 @@ class Validator
             $errors = 'email';
         }
 
-        if (empty($user['id'])) {
-            $errors = 'id';
-        }
-
 
         if (empty($errors)) {
             return true;

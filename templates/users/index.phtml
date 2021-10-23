@@ -1,7 +1,9 @@
-<a href="/users/new">Новый курс</a>
+<a href="/users/new">Добавить пользователя</a>
 
 <?php foreach ($users as $user) : ?>
     <div>
         <?= htmlspecialchars($user['nickname']) ?>
+        |
+        <?= htmlspecialchars($user['email']) ?>
     </div>
 <?php endforeach ?>
