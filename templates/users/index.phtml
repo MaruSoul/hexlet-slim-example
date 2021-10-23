@@ -1,7 +1,7 @@
-<a href="/users/new">Добавить пользователя</a>
+<a href="<?= $router->urlFor('users/new') ?>">Добавить пользователя</a>
 <br>
 <br>
-<form action="/users" method="get">
+<form action="<?= $router->urlFor('users') ?>" method="get">
     <input type="search" name="search" value="<?= htmlspecialchars($search, ENT_QUOTES) ?>" />
     <input type="submit" value="Search" />
 </form>

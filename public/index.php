@@ -20,33 +20,41 @@ $container->set('renderer', function () {
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
-$app->get('/', function ($request, $response) {
-    return $this->get('renderer')->render($response, 'index.phtml');
+$router = $app->getRouteCollector()->getRouteParser();
+
+$app->get('/', function ($request, $response) use ($router) {
+    $params = [
+        'router' => $router,
+    ];
+
+    return $this->get('renderer')->render($response, 'index.phtml', $params);
 });
 
-$app->get('/users', function ($request, $response) use ($repo) {
+$app->get('/users', function ($request, $response) use ($repo, $router) {
     $search = $request->getQueryParam('search');
     $params = [
         'users' => $repo->find($search),
-        'search' => $search
+        'search' => $search,
+        'router' => $router,
     ];
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
-});
+})->setName('users');
 
-$app->get('/users/new', function ($request, $response) {
+$app->get('/users/new', function ($request, $response) use ($router) {
     $params = [
-        'user' => ['nickname' => '', 'email' => '', 'id' => '']
+        'user' => ['nickname' => '', 'email' => '', 'id' => ''],
+        'router' => $router,
     ];
     return $this->get('renderer')->render($response, 'users/new.phtml', $params);
-});
+})->setName('users/new');
 
-$app->post('/users', function ($request, $response) use ($repo) {
+$app->post('/users', function ($request, $response) use ($repo, $router) {
     $validator = new Validator();
     $params = $request->getParsedBody();
     $user = $request->getParsedBodyParam('user');
     if ($validator->validate($user)) {
         $repo->save($user);
-        return $response->withRedirect('/users');
+        return $response->withRedirect($router->urlFor('users'));
     } else {
         return $this->get('renderer')->render($response, "users/new.phtml", $params)->withStatus(422);
     }

@@ -16,7 +16,7 @@ class UserRepository
         return array_values($_SESSION);
     }
 
-    public function find(string $data)
+    public function find(?string $data)
     {
         $users = $this->all();
 
