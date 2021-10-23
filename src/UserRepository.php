@@ -16,13 +16,19 @@ class UserRepository
         return array_values($_SESSION);
     }
 
-    public function find(int $id)
+    public function find(string $data)
     {
-        if (!isset($_SESSION[$id])) {
-            throw new Exception("Wrong course id: {$id}");
-        }
+        $users = $this->all();
 
-        return $_SESSION[$id];
+        $find = array_filter(
+            $users, 
+            fn($user) => 
+                str_contains($user['nickname'], $data) ||
+                str_contains($user['email'], $data) ||
+                str_contains($user['id'], $data)
+        );
+
+        return $find;
     }
 
     public function save(array $item)

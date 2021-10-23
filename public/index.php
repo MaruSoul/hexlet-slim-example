@@ -25,8 +25,10 @@ $app->get('/', function ($request, $response) {
 });
 
 $app->get('/users', function ($request, $response) use ($repo) {
+    $search = $request->getQueryParam('search');
     $params = [
-        'users' => $repo->all()
+        'users' => $repo->find($search),
+        'search' => $search
     ];
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 });

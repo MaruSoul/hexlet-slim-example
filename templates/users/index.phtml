@@ -1,9 +1,25 @@
 <a href="/users/new">Добавить пользователя</a>
-
-<?php foreach ($users as $user) : ?>
-    <div>
-        <?= htmlspecialchars($user['nickname']) ?>
-        |
-        <?= htmlspecialchars($user['email']) ?>
-    </div>
-<?php endforeach ?>
+<br>
+<br>
+<form action="/users" method="get">
+    <input type="search" name="search" value="<?= htmlspecialchars($search, ENT_QUOTES) ?>" />
+    <input type="submit" value="Search" />
+</form>
+<?php if (empty($users)) : ?>
+<span>No users found</span>
+<?php else : ?>
+<table>
+    <tr>
+        <td>nickname</td>
+        <td>email</td>
+        <td>id</td>
+    </tr>
+    <?php foreach ($users as $user) : ?>
+        <tr>
+            <td><?= htmlspecialchars($user['nickname']) ?></td>
+            <td><?= htmlspecialchars($user['email']) ?></td>
+            <td><?= htmlspecialchars($user['id']) ?></td>
+        </tr>
+    <?php endforeach ?>
+</table>
+<?php endif ?>
