@@ -28,15 +28,6 @@ $app->addErrorMiddleware(true, true, true);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-// $app->get('/flash', function ($request, $response) {
-//     // Добавление флеш-сообщения. Оно станет доступным на следующий HTTP-запрос.
-//     // 'success' — тип флеш-сообщения. Используется при выводе для форматирования.
-//     // Например можно ввести тип success и отражать его зелёным цветом (на Хекслете такого много)
-//     $this->get('flash')->addMessage('success', 'Успешно!');
-
-//     return $response->withRedirect('/users');
-// });
-
 $app->get('/', function ($request, $response) use ($router) {
     $params = [
         'router' => $router,

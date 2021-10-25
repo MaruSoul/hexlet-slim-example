@@ -1,8 +1,12 @@
-<?php if (isset($flash)) {
-    echo $flash['success'][0];
-    echo "<br>";
-}
-?>
+<?php if (!empty($flash)) : ?>
+    <ul>
+        <?php foreach ($flash as $messages) : ?>
+            <?php foreach ($messages as $message) : ?>
+                <li><?= $message ?></li>
+            <?php endforeach ?>
+        <?php endforeach ?>
+    </ul>
+<?php endif ?>
 
 <a href="<?= $router->urlFor('users/new') ?>">Добавить пользователя</a>
 <br>
