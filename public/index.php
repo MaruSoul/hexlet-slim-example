@@ -8,9 +8,11 @@ use Slim\Views\PhpRenderer;
 use DI\Container;
 use Fakeldev\HexletSlimExample\Validator;
 use Fakeldev\HexletSlimExample\UserRepository;
+use Fakeldev\HexletSlimExample\Flatten;
 
 
 $repo = new UserRepository();
+$flatten = new Flatten();
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -57,6 +59,17 @@ $app->post('/users', function ($request, $response) use ($repo, $router) {
         return $response->withRedirect($router->urlFor('users'));
     } else {
         return $this->get('renderer')->render($response, "users/new.phtml", $params)->withStatus(422);
+    }
+});
+
+$app->get('/users/{id}', function ($request, $response, array $args) use ($repo, $flatten) {
+    $id = $args['id'];
+    $userArray = $flatten->flatten($repo->find($id));
+    if (empty($userArray)) {
+        return $response->withStatus(404);
+    } else {
+        $strUser = implode(', ', $userArray);
+        return $response->write("User: {$strUser}");
     }
 });
 

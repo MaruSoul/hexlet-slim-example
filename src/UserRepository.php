@@ -21,9 +21,9 @@ class UserRepository
         $users = $this->all();
 
         $find = array_filter(
-            $users, 
-            fn($user) => 
-                str_contains($user['nickname'], $data) ||
+            $users,
+            fn ($user) =>
+            str_contains($user['nickname'], $data) ||
                 str_contains($user['email'], $data) ||
                 str_contains($user['id'], $data)
         );
