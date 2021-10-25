@@ -5,12 +5,13 @@ require __DIR__ . '/../vendor/autoload.php';
 // Контейнеры в этом курсе не рассматриваются (это тема связанная с самим ООП), но если вам интересно, то посмотрите DI Container
 use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
+use Slim\Flash\Messages;
 use DI\Container;
 use Fakeldev\HexletSlimExample\Validator;
 use Fakeldev\HexletSlimExample\UserRepository;
 use Fakeldev\HexletSlimExample\Flatten;
 
-
+session_start();
 $repo = new UserRepository();
 $flatten = new Flatten();
 
@@ -18,11 +19,23 @@ $container = new Container();
 $container->set('renderer', function () {
     return new PhpRenderer(__DIR__ . '/../templates');
 });
+$container->set('flash', function () {
+    return new Messages();
+});
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
 $router = $app->getRouteCollector()->getRouteParser();
+
+// $app->get('/flash', function ($request, $response) {
+//     // Добавление флеш-сообщения. Оно станет доступным на следующий HTTP-запрос.
+//     // 'success' — тип флеш-сообщения. Используется при выводе для форматирования.
+//     // Например можно ввести тип success и отражать его зелёным цветом (на Хекслете такого много)
+//     $this->get('flash')->addMessage('success', 'Успешно!');
+
+//     return $response->withRedirect('/users');
+// });
 
 $app->get('/', function ($request, $response) use ($router) {
     $params = [
@@ -32,12 +45,14 @@ $app->get('/', function ($request, $response) use ($router) {
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 });
 
-$app->get('/users', function ($request, $response) use ($repo, $router) {
+$app->get('/users', function ($request, $response, $args) use ($repo, $router) {
     $search = $request->getQueryParam('search');
+    $messages = $this->get('flash')->getMessages();
     $params = [
         'users' => $repo->find($search),
         'search' => $search,
         'router' => $router,
+        'flash' => $messages,
     ];
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 })->setName('users');
@@ -52,10 +67,14 @@ $app->get('/users/new', function ($request, $response) use ($router) {
 
 $app->post('/users', function ($request, $response) use ($repo, $router) {
     $validator = new Validator();
-    $params = $request->getParsedBody();
+    $params = [
+        'term' => $request->getParsedBody(),
+    ];
+
     $user = $request->getParsedBodyParam('user');
     if ($validator->validate($user)) {
         $repo->save($user);
+        $this->get('flash')->addMessage('success', 'Успешно!');
         return $response->withRedirect($router->urlFor('users'));
     } else {
         return $this->get('renderer')->render($response, "users/new.phtml", $params)->withStatus(422);
