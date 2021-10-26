@@ -60,6 +60,7 @@ $app->post('/users', function ($request, $response) use ($repo, $router) {
     $validator = new Validator();
     $params = [
         'term' => $request->getParsedBody(),
+        'router' => $router,
     ];
 
     $user = $request->getParsedBodyParam('user');
